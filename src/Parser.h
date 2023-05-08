@@ -9,43 +9,6 @@
 class Parser
 {
 public:
-    explicit Parser(std::string code)
-        : code_(std::move(code))
-    {
-        extract_tokens();
-        prepare_tokens();
-
-        std::cout << "tokens\n";
-        for (const Token &t : tokens_)
-        {
-            std::cout << (int)t.type << " : " << t.str << std::endl;
-        }
-
-        build_tree();
-
-
-        std::cout << "tree\n";
-        std::function<void(TreeNode *, int)> print_tree;
-        print_tree = [&print_tree](TreeNode *node, const int depth) {
-            for (int i = 0; i < depth; ++i)
-            {
-                std::cout << "    ";
-            }
-            const std::string name = node->token.type == Token::Type::Invalid ? std::string(".")
-                                                                              : node->token.str;
-            std::cout << name << std::endl;
-
-            for (const auto &child : node->children)
-            {
-                print_tree(child.get(), depth + 1);
-            }
-        };
-        print_tree(tree_root_.get(), 0);
-    }
-
-    [[nodiscard]] bool isValid() const { return is_valid_; }
-
-private:
     struct Token
     {
         enum class Type
@@ -57,41 +20,36 @@ private:
             Content,
         };
 
-        static Type getType(char symbol)
-        {
-            switch (symbol)
-            {
-            case '(': return Type::BraceOpen;
-            case ')': return Type::BraceClose;
-            case ' ':
-            case '\n':
-            case '\r': return Type::Space;
-            default: return Type::Content;
-            }
-        }
+        static Type getType(char symbol);
 
-        void clear()
-        {
-            str.clear();
-            type = Type::Invalid;
-        }
+        void clear();
 
         Type type{Type::Invalid};
         std::string str;
     };
 
-    struct TreeNode
+    struct Node
     {
         Token token{}; // for leaves
-        std::vector<std::unique_ptr<TreeNode>> children;
+        std::vector<std::unique_ptr<Node>> children;
     };
 
+public:
+    explicit Parser(std::string code);
+
+    [[nodiscard]] bool isValid() const { return is_valid_; }
+
+    // debug
+    void printTokens() const;
+    void printTree() const;
+
+    Node *getRoot() const { return tree_root_.get(); }
 
 private:
     void extract_tokens();
     void prepare_tokens();
     void build_tree();
-    int build_tree_r(TreeNode *parent, int token_pos);
+    int build_tree_r(Node *parent, int token_pos);
 
 private:
     std::string code_;
@@ -99,5 +57,5 @@ private:
 
     std::vector<Token> tokens_;
 
-    std::unique_ptr<TreeNode> tree_root_;
+    std::unique_ptr<Node> tree_root_;
 };

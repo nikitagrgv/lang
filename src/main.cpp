@@ -1,4 +1,5 @@
 #include "FileUtils.h"
+#include "Interpreter.h"
 #include "Parser.h"
 
 #include <fstream>
@@ -22,7 +23,6 @@ int main(int argc, const char *argv[])
 
     std::string file_content = Utils::getFileContent(filename);
     Parser parser(file_content);
-
 
 
     return 0;
