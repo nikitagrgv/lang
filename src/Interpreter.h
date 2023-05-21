@@ -4,12 +4,21 @@
 #include <variant>
 #include <vector>
 
+class ExprNode
+{
+public:
+
+
+
+private:
+    std::vector<std::unique_ptr<ExprNode>> children_;
+};
+
+
 class Interpreter
 {
 public:
     Interpreter();
-
-    using Value = std::variant<float>;
 
     enum class Operator
     {
@@ -20,6 +29,7 @@ public:
         Divide,
     };
 
+    using Value = std::variant<float>;
 
 
 public:
